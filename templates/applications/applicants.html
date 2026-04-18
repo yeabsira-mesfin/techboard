@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-2">Applicants for {{ job.title }}</h1>
+<p class="text-gray-500 mb-6">{{ applications.count }} application{{ applications.count|pluralize }}</p>
+
+{% for app in applications %}
+<div class="bg-white rounded-lg shadow p-5 mb-4">
+  <div class="flex justify-between items-start">
+    <div>
+      <p class="font-semibold text-gray-800">{{ app.applicant.username }}</p>
+      <p class="text-sm text-gray-500">{{ app.applicant.email }} · Applied {{ app.applied_at|date:"M d, Y" }}</p>
+      <p class="text-sm text-gray-600 mt-2">{{ app.cover_letter|truncatewords:30 }}</p>
+      {% if app.resume %}
+        <a href="{{ app.resume.url }}" target="_blank" class="text-sm text-indigo-600 hover:underline mt-1 inline-block">View Resume</a>
+      {% endif %}
+    </div>
+    <form method="post" action="{% url 'applications:update_status' app.pk %}">
+      {% csrf_token %}
+      <select name="status" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1 text-sm">
+        {% for value, label in app.STATUS_CHOICES %}
+          <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+</div>
+{% empty %}
+  <p class="text-gray-500 text-center py-12">No applications yet.</p>
+{% endfor %}
+
+<a href="{% url 'jobs:employer_dashboard' %}" class="text-sm text-gray-500 hover:text-indigo-600">← Back to Dashboard</a>
+
+{% endblock %}

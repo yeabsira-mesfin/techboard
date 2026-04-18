@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load job_filters %}
+{% block content %}
+
+<div class="bg-white rounded-lg shadow p-8 max-w-3xl mx-auto">
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ job.title }}</h1>
+      <p class="text-gray-500 mt-1">{{ job.company }}</p>
+    </div>
+    <span class="bg-indigo-100 text-indigo-700 text-sm px-3 py-1 rounded-full">{{ job.get_job_type_display }}</span>
+  </div>
+
+  {% if job.salary_min and job.salary_max %}
+    <p class="text-green-600 font-medium mb-4">${{ job.salary_min|floatformat:0 }}k – ${{ job.salary_max|floatformat:0 }}k</p>
+  {% endif %}
+
+  <div class="mb-6">
+    <h2 class="font-semibold text-gray-800 mb-2">Description</h2>
+    <p class="text-gray-600 leading-relaxed">{{ job.description }}</p>
+  </div>
+
+  <div class="mb-6">
+    <h2 class="font-semibold text-gray-800 mb-2">Requirements</h2>
+    <p class="text-gray-600 leading-relaxed">{{ job.requirements }}</p>
+  </div>
+
+  {% if job.tech_stack %}
+    <div class="mb-6">
+      <h2 class="font-semibold text-gray-800 mb-2">Tech Stack</h2>
+      <div class="flex flex-wrap gap-2">
+        {% for tag in job.get_tech_tags %}
+          <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded">{{ tag|trim }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="mt-8">
+    {% if user.is_authenticated and user.profile.role == 'seeker' %}
+      <a href="{% url 'applications:apply' job.pk %}" class="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700">Apply Now</a>
+    {% elif not user.is_authenticated %}
+      <a href="{% url 'accounts:login' %}" class="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700">Login to Apply</a>
+    {% endif %}
+    <a href="{% url 'jobs:listing' %}" class="ml-4 text-sm text-gray-500 hover:text-indigo-600">← Back to listings</a>
+  </div>
+</div>
+
+{% endblock %}
